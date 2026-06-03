@@ -33,6 +33,15 @@ class WebhookMixin(models.AbstractModel):
         # Defer the HTTP POST until after the current transaction commits.
         # Rolled-back transactions therefore never produce a webhook, and the
         # user's Post / Confirm / Validate button returns immediately.
+        #
+        # _() in Odoo 16 returns a lazy translation proxy whose str() lookup
+        # relies on the current thread's request context. Resolve both
+        # user-facing strings to plain str eagerly: by the time _do_send
+        # runs in a fresh cursor, that context is gone and the lazy lookup
+        # would silently fall back to the English source.
+        success_label = str(success_label)
+        failure_template = str(_("Failed to send to BusinessChat: %s"))
+
         record_model = record._name
         record_id = record.id
         dbname = self.env.cr.dbname
@@ -49,7 +58,7 @@ class WebhookMixin(models.AbstractModel):
             except Exception as e:
                 _logger.error("Webhook send failed: %s", e)
                 ok = False
-                msg = _("Failed to send to BusinessChat: %s") % e
+                msg = failure_template % e
             # Fresh cursor: post-commit runs outside any transaction.
             with api.Environment.manage(), odoo.registry(dbname).cursor() as cr:
                 env = api.Environment(cr, uid, {})
