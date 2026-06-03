@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_businesschat_event_user,businesschat.event.user,model_businesschat_event,base.group_user,1,1,0,0
+access_businesschat_event_manager,businesschat.event.manager,model_businesschat_event,base.group_system,1,1,1,1

@@ -1,0 +1,62 @@
+# Arabic translation for BusinessChat Connector
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: whatsapp_invoice_webhook
+#: model_terms:ir.ui.view,arch_db:whatsapp_invoice_webhook.res_config_settings_view_form_whatsapp
+msgid "Default Webhook URL"
+msgstr "رابط Webhook الافتراضي"
+
+#. module: whatsapp_invoice_webhook
+#: model_terms:ir.ui.view,arch_db:whatsapp_invoice_webhook.res_config_settings_view_form_whatsapp
+msgid "Used when an event has no specific URL"
+msgstr "يُستخدم عند عدم وجود URL خاص بالحدث"
+
+#. module: whatsapp_invoice_webhook
+#: model_terms:ir.ui.view,arch_db:whatsapp_invoice_webhook.res_config_settings_view_form_whatsapp
+msgid "Events"
+msgstr "الأحداث"
+
+#. module: whatsapp_invoice_webhook
+#: model_terms:ir.ui.view,arch_db:whatsapp_invoice_webhook.res_config_settings_view_form_whatsapp
+msgid "Enable an event and optionally set its own URL"
+msgstr "فعّل الحدث، ويمكنك تحديد URL خاص به اختيارياً"
+
+#. module: whatsapp_invoice_webhook
+#: model_terms:ir.ui.view,arch_db:whatsapp_invoice_webhook.res_config_settings_view_form_whatsapp
+msgid "Leave empty to use default URL"
+msgstr "اتركه فارغاً لاستخدام الرابط الافتراضي"
+
+#. module: whatsapp_invoice_webhook
+#: model:ir.model.fields,field_description:whatsapp_invoice_webhook.field_businesschat_event__name
+msgid "Event"
+msgstr "الحدث"
+
+#. module: whatsapp_invoice_webhook
+#: model:ir.model.fields,field_description:whatsapp_invoice_webhook.field_businesschat_event__enabled
+msgid "Enabled"
+msgstr "مُفعّل"
+
+#. module: whatsapp_invoice_webhook
+#: model:ir.model.fields,field_description:whatsapp_invoice_webhook.field_businesschat_event__url
+msgid "Webhook URL"
+msgstr "رابط Webhook"
+
+#. module: whatsapp_invoice_webhook
+#: model:businesschat.event,name:whatsapp_invoice_webhook.event_invoice
+msgid "Invoice"
+msgstr "فاتورة"
+
+#. module: whatsapp_invoice_webhook
+#: model:businesschat.event,name:whatsapp_invoice_webhook.event_sale_order
+msgid "Sale Order"
+msgstr "أمر بيع"

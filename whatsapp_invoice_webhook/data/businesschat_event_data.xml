@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <record id="event_invoice" model="businesschat.event">
+        <field name="name">Invoice</field>
+        <field name="code">invoice_posted</field>
+        <field name="enabled" eval="False"/>
+    </record>
+
+    <record id="event_sale_order" model="businesschat.event">
+        <field name="name">Sale Order</field>
+        <field name="code">sale_order_confirmed</field>
+        <field name="enabled" eval="False"/>
+    </record>
+
+    <record id="event_delivery_done" model="businesschat.event">
+        <field name="name">Delivery Feedback</field>
+        <field name="code">delivery_done</field>
+        <field name="enabled" eval="False"/>
+    </record>
+
+</odoo>
