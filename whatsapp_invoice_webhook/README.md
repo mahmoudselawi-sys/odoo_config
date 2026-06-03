@@ -212,6 +212,20 @@ and never roll back the business transaction.
 - **Delivery event needs the Inventory module** (`stock`) and a real
   storable product on the sale order — service-only orders never
   generate an outgoing picking, so no `delivery_done` event fires.
+- **Delivery event scope — what is and isn't sent.** The `delivery_done`
+  webhook fires only for a **complete outgoing customer delivery**.
+  Two cases are suppressed inside the module (the receiver never sees
+  them):
+  - **Partial deliveries.** When validating a picking creates a
+    backorder (some items still pending), no event fires for the
+    partial. The event fires only when the **completing backorder**
+    is validated — i.e. when no further backorder is generated.
+  - **Returns / re-shipments.** If any stock move on the picking
+    references an earlier outgoing move (`origin_returned_move_id`
+    is set), the picking is treated as a return flow rather than a
+    fresh delivery and no event fires.
+  Customer-to-warehouse returns (RMA) were never sent anyway, since
+  those pickings have `picking_type_id.code == 'incoming'`.
 - **Only customer invoices** (`out_invoice`) fire `invoice_posted`.
   Credit notes (`out_refund`), vendor bills and journal entries are
   ignored.

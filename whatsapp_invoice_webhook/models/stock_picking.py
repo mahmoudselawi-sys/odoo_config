@@ -22,6 +22,18 @@ class StockPicking(models.Model):
 
     def _send_delivery_webhook(self):
         self.ensure_one()
+        # Suppress partials: this picking generated a backorder, so only
+        # part of the order shipped. The completing backorder picking
+        # itself has no further backorders and will fire normally.
+        if self.backorder_ids:
+            return
+        # Suppress returns / re-shipments: any move tied back to an
+        # earlier outgoing move via origin_returned_move_id means this
+        # is not a fresh delivery to the customer. The move-list field
+        # is named move_ids on Odoo 16 and move_lines on Odoo 14/15.
+        moves_field = "move_ids" if "move_ids" in self._fields else "move_lines"
+        if any(self[moves_field].mapped("origin_returned_move_id")):
+            return
         event = self.env["businesschat.event"].get_active_event(EVENT_CODE)
         if not event:
             return

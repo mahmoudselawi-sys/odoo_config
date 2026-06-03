@@ -82,6 +82,66 @@ class TestDeliveryEvent(TransactionCase):
             picking._send_delivery_webhook()
         send.assert_not_called()
 
+    def test_delivery_done_suppressed_for_partial_delivery(self):
+        self.event.enabled = True
+        self.event.url = "http://event.example/delivery"
+        partial = self._make_outgoing_picking()
+        # Wiring a child picking via backorder_id auto-populates the
+        # parent's backorder_ids One2many.
+        backorder = self._make_outgoing_picking()
+        backorder.backorder_id = partial.id
+        with patch.object(WebhookMixin, "_wh_send", autospec=True) as send:
+            partial._send_delivery_webhook()
+        send.assert_not_called()
+
+    def test_delivery_done_fires_for_completing_backorder(self):
+        # The picking that finishes the order is itself a backorder
+        # (backorder_id points to the original), but it has no further
+        # backorders — backorder_ids is empty, so it must fire.
+        self.event.enabled = True
+        self.event.url = "http://event.example/delivery"
+        original = self._make_outgoing_picking()
+        completing = self._make_outgoing_picking()
+        completing.backorder_id = original.id
+        with patch.object(WebhookMixin, "_wh_send", autospec=True) as send:
+            completing._send_delivery_webhook()
+        send.assert_called_once()
+
+    def test_delivery_done_suppressed_for_return_or_reshipment(self):
+        self.event.enabled = True
+        self.event.url = "http://event.example/delivery"
+        product = self.env["product.product"].create({
+            "name": "Test Widget",
+            "type": "consu",
+        })
+        # An original outgoing move that the return references.
+        origin_move = self.env["stock.move"].create({
+            "name": "origin move",
+            "product_id": product.id,
+            "product_uom_qty": 1,
+            "product_uom": product.uom_id.id,
+            "location_id": self.location_stock.id,
+            "location_dest_id": self.location_customer.id,
+        })
+        # Re-ship picking with a move that points back at the origin.
+        reship = self._make_outgoing_picking()
+        moves_field = "move_ids" if "move_ids" in reship._fields else "move_lines"
+        self.env["stock.move"].create({
+            "name": "return move",
+            "picking_id": reship.id,
+            "product_id": product.id,
+            "product_uom_qty": 1,
+            "product_uom": product.uom_id.id,
+            "location_id": self.location_stock.id,
+            "location_dest_id": self.location_customer.id,
+            "origin_returned_move_id": origin_move.id,
+        })
+        # Sanity: the resolved moves field actually contains the return.
+        self.assertTrue(reship[moves_field])
+        with patch.object(WebhookMixin, "_wh_send", autospec=True) as send:
+            reship._send_delivery_webhook()
+        send.assert_not_called()
+
     def test_delivery_done_dedup_via_button_validate(self):
         # The dedup check (skip when webhook_sent is True) lives in
         # button_validate. We can't realistically validate a picking
