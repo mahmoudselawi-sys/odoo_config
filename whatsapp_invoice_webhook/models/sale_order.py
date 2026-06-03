@@ -36,5 +36,4 @@ class SaleOrder(models.Model):
             "customer_phone": partner.phone or "",
             "customer_email": partner.email or "",
         }
-        if self.env["webhook.mixin"]._wh_send(self, url, payload, success_label="Order sent to BusinessChat"):
-            self.webhook_sent = True
+        self.env["webhook.mixin"]._wh_send(self, url, payload, success_label="Order sent to BusinessChat")

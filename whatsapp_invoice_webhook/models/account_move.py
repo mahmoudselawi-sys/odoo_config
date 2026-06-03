@@ -41,5 +41,4 @@ class AccountMove(models.Model):
             "customer_email": partner.email or "",
             "invoice_url": full_invoice_url,
         }
-        if self.env["webhook.mixin"]._wh_send(self, url, payload):
-            self.webhook_sent = True
+        self.env["webhook.mixin"]._wh_send(self, url, payload)
