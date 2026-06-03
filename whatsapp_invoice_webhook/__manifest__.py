@@ -1,6 +1,6 @@
 {
     'name': 'BusinessChat Connector',
-    'version': '16.0.7.0.0',
+    'version': '16.0.7.1.0',
     'summary': 'Send Odoo events (invoices, orders, deliveries) to BusinessChat via webhook',
     'description': 'Sends invoice, sale order and delivery events to configured webhook URLs (BusinessChat) for WhatsApp messaging, with a settings page and a dynamic events table.',
     'category': 'Tools',
