@@ -1,6 +1,8 @@
 import json
 import logging
+import os
 import requests
+import threading
 
 import odoo
 from odoo import _, api, models
@@ -8,6 +10,93 @@ from odoo import _, api, models
 _logger = logging.getLogger(__name__)
 
 DEFAULT_URL_KEY = "whatsapp_invoice_webhook.url"
+
+# ----------------------------------------------------------------------
+# Tiny dependency-free .po reader used to resolve chatter strings.
+#
+# Odoo 14 reads code translations from the ir_translation table.
+# Odoo 15/16 read them from an in-memory dict (odoo.tools.translate.
+# code_translations) populated at module install/upgrade time. Both
+# internal APIs are out of reach across the post-commit boundary — and
+# differ across versions. To keep this module working identically on
+# Odoo 14, 15 and 16 we parse the module's i18n/<lang>.po files
+# ourselves once per process and look the chatter strings up in that
+# dict before scheduling the post-commit callback.
+# ----------------------------------------------------------------------
+_PO_CACHE = {}                 # {lang: {msgid: msgstr}}
+_PO_CACHE_LOCK = threading.Lock()
+
+
+def _i18n_dir():
+    return os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "i18n",
+    )
+
+
+def _po_unquote(s):
+    s = s.strip()
+    if len(s) >= 2 and s[0] == '"' and s[-1] == '"':
+        s = s[1:-1]
+    # Unescape in two passes so '\\' doesn't grab the leading slash of
+    # other escape sequences.
+    return (s.replace(r"\\", "\x00")
+             .replace(r'\"', '"')
+             .replace(r"\n", "\n")
+             .replace(r"\t", "\t")
+             .replace("\x00", "\\"))
+
+
+def _parse_po(path):
+    out = {}
+    cur_id, cur_str, mode = [], [], None
+
+    def flush():
+        if mode and cur_id:
+            mid = "".join(cur_id)
+            mstr = "".join(cur_str)
+            if mid and mstr:
+                out[mid] = mstr
+
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            for raw in f:
+                line = raw.rstrip("\n")
+                stripped = line.strip()
+                if not stripped or stripped.startswith("#"):
+                    flush()
+                    cur_id, cur_str, mode = [], [], None
+                elif stripped.startswith("msgid "):
+                    flush()
+                    cur_id, cur_str, mode = [_po_unquote(stripped[6:])], [], "id"
+                elif stripped.startswith("msgstr "):
+                    cur_str, mode = [_po_unquote(stripped[7:])], "str"
+                elif stripped.startswith('"'):
+                    (cur_id if mode == "id" else cur_str).append(_po_unquote(stripped))
+            flush()
+    except OSError:
+        pass
+    return out
+
+
+def _translations_for(lang):
+    if lang in _PO_CACHE:
+        return _PO_CACHE[lang]
+    with _PO_CACHE_LOCK:
+        if lang in _PO_CACHE:
+            return _PO_CACHE[lang]
+        merged = {}
+        i18n = _i18n_dir()
+        # Match Odoo 16's order: load the base lang first, then the
+        # full lang (so e.g. ar_001 overrides ar where they differ).
+        seen = set()
+        for candidate in (lang.split("_")[0], lang):
+            if candidate in seen:
+                continue
+            seen.add(candidate)
+            merged.update(_parse_po(os.path.join(i18n, "%s.po" % candidate)))
+        _PO_CACHE[lang] = merged
+        return merged
 
 
 class WebhookMixin(models.AbstractModel):
@@ -34,13 +123,18 @@ class WebhookMixin(models.AbstractModel):
         # Rolled-back transactions therefore never produce a webhook, and the
         # user's Post / Confirm / Validate button returns immediately.
         #
-        # _() in Odoo 16 returns a lazy translation proxy whose str() lookup
-        # relies on the current thread's request context. Resolve both
-        # user-facing strings to plain str eagerly: by the time _do_send
-        # runs in a fresh cursor, that context is gone and the lazy lookup
-        # would silently fall back to the English source.
-        success_label = str(success_label)
-        failure_template = str(_("Failed to send to BusinessChat: %s"))
+        # Resolve user-facing strings via our own .po cache (works
+        # identically on Odoo 14/15/16). Doing the lookup here, before
+        # scheduling, captures the right text on the closure and dodges
+        # the post-commit language-loss problem.
+        lang = self.env.context.get("lang") or self.env.user.lang or "en_US"
+        T = _translations_for(lang)
+        success_source = str(success_label)
+        success_label = T.get(success_source, success_source)
+        failure_template = T.get(
+            "Failed to send to BusinessChat: %s",
+            "Failed to send to BusinessChat: %s",
+        )
 
         record_model = record._name
         record_id = record.id
