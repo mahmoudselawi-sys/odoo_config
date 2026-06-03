@@ -60,3 +60,49 @@ msgstr "فاتورة"
 #: model:businesschat.event,name:whatsapp_invoice_webhook.event_sale_order
 msgid "Sale Order"
 msgstr "أمر بيع"
+
+#. module: whatsapp_invoice_webhook
+#: model:businesschat.event,name:whatsapp_invoice_webhook.event_delivery_done
+msgid "Delivery Feedback"
+msgstr "إشعار التسليم"
+
+#. module: whatsapp_invoice_webhook
+#: model:ir.model.fields,field_description:whatsapp_invoice_webhook.field_businesschat_event__code
+msgid "Technical Code"
+msgstr "كود تقني"
+
+#. module: whatsapp_invoice_webhook
+#: model:ir.model.fields,field_description:whatsapp_invoice_webhook.field_account_move__webhook_sent
+#: model:ir.model.fields,field_description:whatsapp_invoice_webhook.field_sale_order__webhook_sent
+#: model:ir.model.fields,field_description:whatsapp_invoice_webhook.field_stock_picking__webhook_sent
+msgid "Webhook Sent"
+msgstr "تم إرسال Webhook"
+
+#. module: whatsapp_invoice_webhook
+#: model:ir.model.fields,field_description:whatsapp_invoice_webhook.field_res_config_settings__wh_event_ids
+msgid "BusinessChat Events"
+msgstr "أحداث BusinessChat"
+
+#. module: whatsapp_invoice_webhook
+#: code:addons/whatsapp_invoice_webhook/models/account_move.py:0
+#, python-format
+msgid "Sent to BusinessChat"
+msgstr "تم الإرسال إلى BusinessChat"
+
+#. module: whatsapp_invoice_webhook
+#: code:addons/whatsapp_invoice_webhook/models/sale_order.py:0
+#, python-format
+msgid "Order sent to BusinessChat"
+msgstr "تم إرسال الطلب إلى BusinessChat"
+
+#. module: whatsapp_invoice_webhook
+#: code:addons/whatsapp_invoice_webhook/models/stock_picking.py:0
+#, python-format
+msgid "Delivery feedback sent to BusinessChat"
+msgstr "تم إرسال إشعار التسليم إلى BusinessChat"
+
+#. module: whatsapp_invoice_webhook
+#: code:addons/whatsapp_invoice_webhook/models/webhook_mixin.py:0
+#, python-format
+msgid "Failed to send to BusinessChat: %s"
+msgstr "فشل الإرسال إلى BusinessChat: %s"

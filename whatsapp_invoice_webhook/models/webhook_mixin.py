@@ -3,7 +3,7 @@ import logging
 import requests
 
 import odoo
-from odoo import api, models
+from odoo import _, api, models
 
 _logger = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ class WebhookMixin(models.AbstractModel):
             except Exception as e:
                 _logger.error("Webhook send failed: %s", e)
                 ok = False
-                msg = "Failed to send to BusinessChat: %s" % e
+                msg = _("Failed to send to BusinessChat: %s") % e
             # Fresh cursor: post-commit runs outside any transaction.
             with api.Environment.manage(), odoo.registry(dbname).cursor() as cr:
                 env = api.Environment(cr, uid, {})

@@ -1,4 +1,4 @@
-from odoo import models, fields
+from odoo import _, models, fields
 
 EVENT_CODE = "delivery_done"
 
@@ -39,4 +39,4 @@ class StockPicking(models.Model):
             "customer_phone": partner.phone or "",
             "customer_email": partner.email or "",
         }
-        self.env["webhook.mixin"]._wh_send(self, url, payload, success_label="Delivery feedback sent to BusinessChat")
+        self.env["webhook.mixin"]._wh_send(self, url, payload, success_label=_("Delivery feedback sent to BusinessChat"))

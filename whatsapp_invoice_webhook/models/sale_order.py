@@ -1,4 +1,4 @@
-from odoo import models, fields
+from odoo import _, models, fields
 
 EVENT_CODE = "sale_order_confirmed"
 
@@ -36,4 +36,4 @@ class SaleOrder(models.Model):
             "customer_phone": partner.phone or "",
             "customer_email": partner.email or "",
         }
-        self.env["webhook.mixin"]._wh_send(self, url, payload, success_label="Order sent to BusinessChat")
+        self.env["webhook.mixin"]._wh_send(self, url, payload, success_label=_("Order sent to BusinessChat"))

@@ -1,4 +1,4 @@
-from odoo import models, fields
+from odoo import _, models, fields
 
 EVENT_CODE = "invoice_posted"
 
@@ -41,4 +41,4 @@ class AccountMove(models.Model):
             "customer_email": partner.email or "",
             "invoice_url": full_invoice_url,
         }
-        self.env["webhook.mixin"]._wh_send(self, url, payload)
+        self.env["webhook.mixin"]._wh_send(self, url, payload, success_label=_("Sent to BusinessChat"))
