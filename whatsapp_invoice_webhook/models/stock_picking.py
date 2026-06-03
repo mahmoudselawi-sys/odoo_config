@@ -1,6 +1,6 @@
 from odoo import _, models, fields
 
-EVENT_CODE = "delivery_done"
+from .constants import EVENT_DELIVERY_DONE as EVENT_CODE
 
 
 class StockPicking(models.Model):

@@ -1,6 +1,6 @@
 from odoo import _, models, fields
 
-EVENT_CODE = "invoice_posted"
+from .constants import EVENT_INVOICE_POSTED as EVENT_CODE
 
 
 class AccountMove(models.Model):

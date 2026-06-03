@@ -7,9 +7,9 @@ import threading
 import odoo
 from odoo import _, api, models
 
-_logger = logging.getLogger(__name__)
+from .constants import DEFAULT_URL_KEY
 
-DEFAULT_URL_KEY = "whatsapp_invoice_webhook.url"
+_logger = logging.getLogger(__name__)
 
 # ----------------------------------------------------------------------
 # Tiny dependency-free .po reader used to resolve chatter strings.

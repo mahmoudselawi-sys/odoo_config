@@ -1,6 +1,6 @@
 from odoo import models, fields, api
 
-DEFAULT_URL_KEY = "whatsapp_invoice_webhook.url"
+from .constants import DEFAULT_URL_KEY
 
 
 class BusinessChatEvent(models.Model):

@@ -1,12 +1,14 @@
 from odoo import models, fields, api
 
+from .constants import DEFAULT_URL_KEY
+
 
 class ResConfigSettings(models.TransientModel):
     _inherit = "res.config.settings"
 
     wh_default_url = fields.Char(
         string="Default Webhook URL",
-        config_parameter="whatsapp_invoice_webhook.url",
+        config_parameter=DEFAULT_URL_KEY,
     )
 
     wh_event_ids = fields.One2many(

@@ -1,6 +1,6 @@
 from odoo import _, models, fields
 
-EVENT_CODE = "sale_order_confirmed"
+from .constants import EVENT_SALE_ORDER_CONFIRMED as EVENT_CODE
 
 
 class SaleOrder(models.Model):
