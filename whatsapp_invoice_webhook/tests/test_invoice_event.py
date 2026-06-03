@@ -1,13 +1,13 @@
 from unittest.mock import patch
 
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import SavepointCase
 
 from odoo.addons.whatsapp_invoice_webhook.models.webhook_mixin import (
     WebhookMixin,
 )
 
 
-class TestInvoiceEvent(TransactionCase):
+class TestInvoiceEvent(SavepointCase):
 
     @classmethod
     def setUpClass(cls):
@@ -47,7 +47,7 @@ class TestInvoiceEvent(TransactionCase):
             invoice.action_post()
         send.assert_called_once()
         # Positional args: (self_mixin, record, url, payload)
-        _, record, url, payload = send.call_args.args
+        _, record, url, payload = send.call_args[0]
         self.assertEqual(record, invoice)
         self.assertEqual(url, "http://event.example/invoice")
         self.assertEqual(payload["event_type"], "invoice_posted")
@@ -69,7 +69,7 @@ class TestInvoiceEvent(TransactionCase):
         invoice = self._make_draft_invoice()
         with patch.object(WebhookMixin, "_wh_send", autospec=True) as send:
             invoice.action_post()
-        _, _, url, _ = send.call_args.args
+        _, _, url, _ = send.call_args[0]
         self.assertEqual(url, "http://default.example/hook")
 
     def test_invoice_posted_silent_when_event_disabled(self):

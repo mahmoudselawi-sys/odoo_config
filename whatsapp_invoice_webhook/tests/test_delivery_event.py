@@ -1,13 +1,13 @@
 from unittest.mock import patch
 
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import SavepointCase
 
 from odoo.addons.whatsapp_invoice_webhook.models.webhook_mixin import (
     WebhookMixin,
 )
 
 
-class TestDeliveryEvent(TransactionCase):
+class TestDeliveryEvent(SavepointCase):
 
     @classmethod
     def setUpClass(cls):
@@ -48,7 +48,7 @@ class TestDeliveryEvent(TransactionCase):
         with patch.object(WebhookMixin, "_wh_send", autospec=True) as send:
             picking._send_delivery_webhook()
         send.assert_called_once()
-        _, record, url, payload = send.call_args.args
+        _, record, url, payload = send.call_args[0]
         self.assertEqual(record, picking)
         self.assertEqual(url, "http://event.example/delivery")
         self.assertEqual(payload["event_type"], "delivery_done")
@@ -59,7 +59,7 @@ class TestDeliveryEvent(TransactionCase):
         self.assertEqual(payload["customer_phone"], "+966500000000")
         self.assertEqual(payload["customer_email"], "acme@example.com")
         self.assertEqual(
-            send.call_args.kwargs.get("success_label"),
+            send.call_args[1].get("success_label"),
             "Delivery feedback sent to BusinessChat",
         )
 
@@ -72,7 +72,7 @@ class TestDeliveryEvent(TransactionCase):
         picking = self._make_outgoing_picking()
         with patch.object(WebhookMixin, "_wh_send", autospec=True) as send:
             picking._send_delivery_webhook()
-        _, _, url, _ = send.call_args.args
+        _, _, url, _ = send.call_args[0]
         self.assertEqual(url, "http://default.example/hook")
 
     def test_delivery_done_silent_when_event_disabled(self):

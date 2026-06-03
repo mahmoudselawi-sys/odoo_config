@@ -1,13 +1,13 @@
 from unittest.mock import patch
 
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import SavepointCase
 
 from odoo.addons.whatsapp_invoice_webhook.models.webhook_mixin import (
     WebhookMixin,
 )
 
 
-class TestSaleOrderEvent(TransactionCase):
+class TestSaleOrderEvent(SavepointCase):
 
     @classmethod
     def setUpClass(cls):
@@ -44,7 +44,7 @@ class TestSaleOrderEvent(TransactionCase):
         with patch.object(WebhookMixin, "_wh_send", autospec=True) as send:
             order.action_confirm()
         send.assert_called_once()
-        _, record, url, payload = send.call_args.args
+        _, record, url, payload = send.call_args[0]
         self.assertEqual(record, order)
         self.assertEqual(url, "http://event.example/order")
         self.assertEqual(payload["event_type"], "sale_order_confirmed")
@@ -57,7 +57,7 @@ class TestSaleOrderEvent(TransactionCase):
         self.assertEqual(payload["state"], "sale")
         # success_label kwarg should be the order-specific one
         self.assertEqual(
-            send.call_args.kwargs.get("success_label"),
+            send.call_args[1].get("success_label"),
             "Order sent to BusinessChat",
         )
 
@@ -70,7 +70,7 @@ class TestSaleOrderEvent(TransactionCase):
         order = self._make_draft_order()
         with patch.object(WebhookMixin, "_wh_send", autospec=True) as send:
             order.action_confirm()
-        _, _, url, _ = send.call_args.args
+        _, _, url, _ = send.call_args[0]
         self.assertEqual(url, "http://default.example/hook")
 
     def test_sale_order_confirmed_silent_when_event_disabled(self):
